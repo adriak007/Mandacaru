@@ -25,7 +25,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     <div
       className="min-h-screen max-w-[430px] mx-auto flex flex-col relative overflow-hidden select-none"
       style={{
-        // Substituído pelo degradê exato de .s-welcome
         background: 'linear-gradient(180deg, #C44A23 0%, #8E3D20 60%, #5C2812 100%)',
         color: 'var(--areia, #F4EEDF)',
       }}
@@ -40,46 +39,47 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* ── .s-welcome .horizon (Efeito de iluminação no horizonte) ── */}
-      <div 
+      {/* ── Efeito de iluminação no horizonte ── */}
+      <div
         className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
         style={{
           background: 'radial-gradient(ellipse 500px 400px at 50% 80%, rgba(232, 201, 124, 0.25), transparent 60%)'
         }}
       />
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
         style={{
           background: 'linear-gradient(180deg, transparent 0%, rgba(43, 24, 16, 0.3) 40%, var(--sertao, #120802) 100%)'
         }}
       />
 
-      {/* ── .s-welcome .sun (Sol com cores do CSS) ── */}
+      {/* ── Sol ── */}
       <div
         className="absolute rounded-full pointer-events-none opacity-80"
         style={{
           width: '180px',
           height: '180px',
-          bottom: '180px',
+          bottom: '380px',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, var(--flor, #FAF6EC) 0%, var(--terracota-soft, #B85030) 60%, transparent 80%)',
+          background: 'radial-gradient(circle, var(--flor, #FAF6EC) 0%, var(--terracota-soft, #B85030) 70%, transparent 80%)',
         }}
       />
 
-      {/* ── Silhuetas dos Mandacarus (.cactus) ── */}
-      {/* Mandacaru Esquerdo (.cactus.small) */}
-      <div 
-        className="absolute left-[40px] bottom-0 w-[22px] h-[110px]"
+      {/* ── Mandacaru Esquerdo ── */}
+      <div
+        className="absolute left-[40px] w-[22px] h-[110px]"
         style={{
+          bottom: '130px',
           backgroundColor: 'var(--sertao, #120802)',
           borderRadius: '11px 11px 0 0'
         }}
       >
-        {/* Braço do pequeno */}
-        <div 
-          className="absolute bottom-[30px] right-[-16px] width-[14px] height-[50px]"
+        <div
           style={{
+            position: 'absolute',
+            bottom: '30px',
+            right: '-16px',
             width: '14px',
             height: '50px',
             backgroundColor: 'var(--sertao, #120802)',
@@ -88,71 +88,82 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         />
       </div>
 
-      {/* Mandacaru Central Principal (.cactus.main) */}
+      {/* ── Mandacaru Central Principal ── */}
       <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[38px] h-[220px]"
+        className="absolute left-1/2 -translate-x-1/2 w-[38px] h-[220px]"
         style={{
+          bottom: '120px',
           backgroundColor: 'var(--sertao, #120802)',
           borderRadius: '19px 19px 0 0',
         }}
       >
-        {/* Braço Esquerdo do principal */}
-        <div 
-          className="absolute bottom-[60px] left-[-28px] w-[24px] h-[80px] translate-y-[20px]"
+        {/* Braço Esquerdo */}
+        <div
           style={{
+            position: 'absolute',
+            bottom: '60px',
+            left: '-28px',
+            width: '24px',
+            height: '80px',
+            transform: 'translateY(20px)',
             backgroundColor: 'var(--sertao, #120802)',
             borderRadius: '2px 12px 0 0'
           }}
         />
-        {/* Braço Direito do principal */}
-        <div 
-          className="absolute bottom-[60px] right-[-28px] w-[24px] h-[80px] translate-y-[30px]"
+        {/* Braço Direito */}
+        <div
           style={{
+            position: 'absolute',
+            bottom: '60px',
+            right: '-28px',
+            width: '24px',
+            height: '80px',
+            transform: 'translateY(30px)',
             backgroundColor: 'var(--sertao, #120802)',
             borderRadius: '2px 12px 0 0'
           }}
         />
       </div>
 
-      {/* Mandacaru Direito (.cactus.tiny) */}
-      <div 
-        className="absolute right-[40px] bottom-0 w-[16px] h-[70px]"
+      {/* ── Mandacaru Direito ── */}
+      <div
+        className="absolute right-[40px] w-[16px] h-[70px]"
         style={{
+          bottom: '130px',
           backgroundColor: 'var(--sertao, #120802)',
           borderRadius: '2px 8px 0 0'
         }}
       />
 
-      {/* Flor no topo do mandacaru principal (.flower) */}
+      {/* ── Flor no topo do mandacaru principal ── */}
       <div
-        className="absolute bottom-[215px] left-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full flex items-center justify-center"
+        className="absolute left-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full flex items-center justify-center"
         style={{
+          bottom: '335px',
           backgroundColor: 'var(--areia, #F4EEDF)',
           boxShadow: '0 0 30px rgba(244, 236, 221, 0.6)'
         }}
       >
-        <div 
+        <div
           className="w-[8px] h-[8px] rounded-full"
           style={{ backgroundColor: 'var(--flor, #E8B84B)' }}
         />
       </div>
 
-      {/* ── Content Header (.s-welcome .content) ── */}
+      {/* ── Header ── */}
       <div className="relative z-20 pt-[110px] px-8 text-center">
-        {/* .wordmark / .logo-wordmark */}
         <h1
-          className="font-serif text-[56px] font-normal leading-none tracking-tight italic"
-          style={{ 
+          className="text-[56px] font-normal leading-none tracking-tight italic"
+          style={{
             fontFamily: "'Instrument Serif', serif",
             color: 'var(--areia, #F4EEDF)',
           }}
         >
           Mandacaru
         </h1>
-        {/* .tagline */}
         <p
           className="text-[11px] uppercase mt-3.5 opacity-70"
-          style={{ 
+          style={{
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: '0.24em'
           }}
@@ -161,29 +172,26 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </p>
       </div>
 
-      {/* ── Footer Estilizado conforme .s-welcome .footer ── */}
-      <div className="mt-auto relative z-20 px-8 pb-[50px] text-center w-full">
-        
-        {/* Texto poético (.lead) */}
-        <p 
+      {/* ── Footer ── */}
+      <div className="mt-auto relative z-20 px-8 pb-[108px] text-center w-full">
+
+        <p
           className="text-[26px] italic leading-[1.15] mb-6"
-          style={{ 
+          style={{
             fontFamily: "'Instrument Serif', serif",
             color: 'var(--areia, #F4EEDF)'
           }}
         >
-          “Sua roça tem <br /> quem cuida, agora.”
+          "Sua roça tem <br /> quem cuida, agora."
         </p>
 
-        {/* .actions (Ações dinâmicas) */}
         <div className="flex flex-col gap-[10px] w-full">
           {mode === 'landing' ? (
             <>
-              {/* Botão principal adaptado de .s-welcome .btn-primary */}
               <button
                 className="w-full h-[56px] font-semibold text-[15px] flex items-center justify-center transition-opacity active:opacity-90 cursor-pointer"
                 style={{
-                  borderRadius: '2px', // Borda quadrada do seu CSS
+                  borderRadius: '10px',
                   backgroundColor: 'var(--areia, #F4EEDF)',
                   color: 'var(--sertao, #120802)',
                 }}
@@ -192,17 +200,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 Criar minha conta
               </button>
 
-              {/* Link inferior adaptado de .s-welcome .btn-link */}
-              <button 
-                className="text-[14px] opacity-75 text-center py-3.5 cursor-pointer hover:opacity-100 transition-opacity"
-                style={{ color: 'var(--areia, #F4EEDF)' }}
-                onClick={() => setMode('signup')}
-              >
-                Sou novo por aqui · criar conta
-              </button>
-            </>
+</>
           ) : (
-            /* Formulário de cadastro adaptado usando o padrão .btn do CSS */
             <div
               className="w-full text-left p-5"
               style={{
@@ -227,9 +226,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
               </label>
               <input
                 className="w-full border rounded-sm px-4 py-3 text-[15px] mb-3.5 bg-transparent outline-none transition-colors"
-                style={{ 
-                  color: 'var(--areia, #F4EEDF)', 
-                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))' 
+                style={{
+                  color: 'var(--areia, #F4EEDF)',
+                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))'
                 }}
                 placeholder="Ex: Sítio Olho d'Água"
                 value={farmName}
@@ -242,9 +241,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
               </label>
               <input
                 className="w-full border rounded-sm px-4 py-3 text-[15px] mb-6 bg-transparent outline-none transition-colors"
-                style={{ 
-                  color: 'var(--areia, #F4EEDF)', 
-                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))' 
+                style={{
+                  color: 'var(--areia, #F4EEDF)',
+                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))'
                 }}
                 placeholder="Ex: Joaquim"
                 value={userName}
@@ -252,7 +251,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 onKeyDown={e => { if (e.key === 'Enter' && canSubmit) handleSignup() }}
               />
 
-              {/* Botão do formulário obedecendo o .btn.dark / .btn */}
               <button
                 className={`w-full h-[52px] text-[15px] font-semibold flex items-center justify-center transition-all ${
                   canSubmit ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'
