@@ -1,21 +1,23 @@
 'use client'
 
+import { useStore } from '@/lib/store'
 import AgentMark from '@/components/AgentMark'
 import {
   SettingsIcon,
   CoinsIcon,
   PulseIcon,
+  PlantIcon,
   SunIcon,
   DropIcon,
   CheckIcon,
   XIcon,
-  PauseIcon,
 } from '@/components/icons'
 import { GoatIcon, CactusIcon } from '@/components/icons'
 import { Tab } from '@/components/TabBar'
 
 interface HomeScreenProps {
   onNavigate: (tab: Tab) => void
+  onOpenSettings: () => void
 }
 
 interface StatusTileProps {
@@ -54,7 +56,18 @@ function StatusTile({ icon, iconBg, label, value, sub, progress, progressColor }
   )
 }
 
-export default function HomeScreen({ onNavigate }: HomeScreenProps) {
+function DecisionIcon({ iconType }: { iconType: 'coins' | 'pulse' | 'plant' }) {
+  if (iconType === 'coins') return <CoinsIcon size={18} stroke="#C16A3F" strokeWidth={1.8} />
+  if (iconType === 'pulse') return <PulseIcon size={18} stroke="#3E6B91" strokeWidth={1.8} />
+  return <PlantIcon size={18} stroke="#2A4A36" strokeWidth={1.8} />
+}
+
+export default function HomeScreen({ onNavigate, onOpenSettings }: HomeScreenProps) {
+  const { decisions, approveDecision, rejectDecision, settings } = useStore()
+  const pending = decisions.filter(d => d.status === 'pending')
+  const pendingCount = pending.length
+  const quickCards = pending.slice(0, 2)
+
   return (
     <div>
       {/* Header */}
@@ -62,20 +75,22 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
         <AgentMark size={42} variant="logo" pulse />
         <div className="flex flex-col flex-1">
           <span className="font-mono text-[12px] text-ink-mute tracking-wider uppercase">
-            BOA TARDE, SEU JOAQUIM
+            BOA TARDE, {settings.userName.toUpperCase()}
           </span>
           <span className="font-head text-[19px] font-semibold text-ink tracking-tight">
-            Sítio Olho d&apos;Água
+            {settings.farmName}
           </span>
         </div>
-        <button className="w-[38px] h-[38px] bg-paper rounded-[7px] border border-line flex items-center justify-center flex-shrink-0">
+        <button
+          className="w-[38px] h-[38px] bg-paper rounded-[7px] border border-line flex items-center justify-center flex-shrink-0 cursor-pointer"
+          onClick={onOpenSettings}
+        >
           <SettingsIcon size={18} stroke="#566054" strokeWidth={1.8} />
         </button>
       </div>
 
       {/* Hero card */}
       <div className="mx-4 rounded-xl bg-green p-[18px] relative overflow-hidden mb-5">
-        {/* Dot texture */}
         <div
           className="absolute inset-0 opacity-[0.18]"
           style={{
@@ -84,37 +99,28 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
           }}
         />
         <div className="relative z-10">
-          {/* Status row */}
           <div className="flex items-center gap-2">
             <span
               className="font-mono text-[10px] rounded-full px-2 py-[3px] tracking-wide uppercase"
-              style={{
-                backgroundColor: 'rgba(214,162,58,0.15)',
-                color: '#F4E2B0',
-              }}
+              style={{ backgroundColor: 'rgba(214,162,58,0.15)', color: '#F4E2B0' }}
             >
               • ao vivo
             </span>
             <span className="text-ink-mute text-[11px] font-sans">atualizado há 4 min</span>
           </div>
 
-          {/* Message */}
           <p className="font-head text-[22px] font-medium text-cream leading-[1.25] tracking-tight mt-3 mb-4">
             O Mandacaru tá{' '}
             <span className="text-gold">cuidando da fazenda.</span>{' '}
             Hoje conferi a cisterna, agendei a vacina das cabras e pedi 80 kg de palma.
           </p>
 
-          {/* Buttons */}
           <div className="flex gap-2">
             <button
               className="flex-1 h-11 bg-gold text-green font-head text-[15px] font-semibold rounded-lg flex items-center justify-center gap-2 cursor-pointer"
               onClick={() => onNavigate('chat')}
             >
               Falar com ele
-            </button>
-            <button className="w-11 h-11 rounded-lg flex items-center justify-center cursor-pointer" style={{ backgroundColor: 'rgba(255,255,255,0.10)' }}>
-              <PauseIcon size={20} stroke="#F4E2B0" fill="#F4E2B0" />
             </button>
           </div>
         </div>
@@ -123,53 +129,55 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
       {/* "Precisa de você" section */}
       <div className="px-5 pt-1 pb-3 flex items-baseline justify-between">
         <span className="font-head text-[16px] font-semibold text-ink">Precisa de você</span>
-        <button
-          className="text-[13px] font-sans font-medium text-terra cursor-pointer"
-          onClick={() => onNavigate('approve')}
-        >
-          3 decisões →
-        </button>
+        {pendingCount > 0 ? (
+          <button
+            className="text-[13px] font-sans font-medium text-terra cursor-pointer"
+            onClick={() => onNavigate('approve')}
+          >
+            {pendingCount} {pendingCount === 1 ? 'decisão' : 'decisões'} →
+          </button>
+        ) : (
+          <span className="text-[13px] font-sans text-ink-mute">Tudo aprovado ✓</span>
+        )}
       </div>
 
-      {/* Approval cards */}
+      {/* Approval quick cards */}
       <div className="px-4 flex flex-col gap-2.5">
-        {/* Card 1: Palma */}
-        <div className="bg-paper card-shadow rounded-xl p-3.5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-[6px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F2DCCB' }}>
-            <CoinsIcon size={18} stroke="#C16A3F" strokeWidth={1.8} />
+        {quickCards.length === 0 && (
+          <div className="bg-paper card-shadow rounded-xl p-3.5 text-center text-[13.5px] font-sans text-ink-mute">
+            Nenhuma decisão pendente
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-head text-[14.5px] font-semibold text-ink">Comprar 80 kg de palma forrageira</div>
-            <div className="text-[12.5px] text-ink-soft font-sans mt-0.5">R$ 96,00 · quinta · 26/05</div>
+        )}
+        {quickCards.map(decision => (
+          <div key={decision.id} className="bg-paper card-shadow rounded-xl p-3.5 flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-[6px] flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: decision.iconBg }}
+            >
+              <DecisionIcon iconType={decision.iconType} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-head text-[14.5px] font-semibold text-ink">{decision.title}</div>
+              <div className="text-[12.5px] text-ink-soft font-sans mt-0.5">
+                {decision.cost !== '—' ? `${decision.cost} · ` : ''}{decision.when}
+              </div>
+            </div>
+            <div className="flex gap-1.5 flex-shrink-0">
+              <button
+                className="w-9 h-9 bg-green rounded-[6px] flex items-center justify-center cursor-pointer"
+                onClick={() => approveDecision(decision.id)}
+              >
+                <CheckIcon size={16} stroke="#FAF6EC" strokeWidth={2.5} />
+              </button>
+              <button
+                className="w-9 h-9 bg-paper rounded-[6px] border border-line-strong flex items-center justify-center cursor-pointer"
+                onClick={() => rejectDecision(decision.id)}
+              >
+                <XIcon size={16} stroke="#566054" strokeWidth={2} />
+              </button>
+            </div>
           </div>
-          <div className="flex gap-1.5 flex-shrink-0">
-            <button className="w-9 h-9 bg-green rounded-[6px] flex items-center justify-center">
-              <CheckIcon size={16} stroke="#FAF6EC" strokeWidth={2.5} />
-            </button>
-            <button className="w-9 h-9 bg-paper rounded-[6px] border border-line-strong flex items-center justify-center">
-              <XIcon size={16} stroke="#566054" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
-
-        {/* Card 2: Vacina */}
-        <div className="bg-paper card-shadow rounded-xl p-3.5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-[6px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#D9E4EE' }}>
-            <PulseIcon size={18} stroke="#3E6B91" strokeWidth={1.8} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-head text-[14.5px] font-semibold text-ink">Vacinar 12 cabras contra raiva</div>
-            <div className="text-[12.5px] text-ink-soft font-sans mt-0.5">R$ 144,00 · sábado · 31/05</div>
-          </div>
-          <div className="flex gap-1.5 flex-shrink-0">
-            <button className="w-9 h-9 bg-green rounded-[6px] flex items-center justify-center">
-              <CheckIcon size={16} stroke="#FAF6EC" strokeWidth={2.5} />
-            </button>
-            <button className="w-9 h-9 bg-paper rounded-[6px] border border-line-strong flex items-center justify-center">
-              <XIcon size={16} stroke="#566054" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* "A fazenda agora" section */}

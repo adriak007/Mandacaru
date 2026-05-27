@@ -1,9 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useStore } from '@/lib/store'
 import AgentMark from '@/components/AgentMark'
 import { WaveIcon, DropIcon, SunIcon, CloudIcon, SparkIcon } from '@/components/icons'
 import { GoatIcon } from '@/components/icons'
+import { Tab } from '@/components/TabBar'
+
+interface FarmScreenProps {
+  onNavigate?: (tab: Tab) => void
+}
 
 type SubTab = 'rebanho' | 'cultivos' | 'agua' | 'equipe'
 
@@ -66,28 +72,58 @@ function ForecastIcon({ type }: { type: ForecastDay['icon'] }) {
 }
 
 function SubTabRebanho() {
+  const { addDiaryEntry, dismissedAlerts, dismissAlert } = useStore()
+  const [examScheduled, setExamScheduled] = useState(false)
+  const alertDismissed = dismissedAlerts.includes('farm_exam_alert') || examScheduled
+
+  function handleScheduleExam() {
+    const t = new Date()
+    const time = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`
+    addDiaryEntry({ t: time, kind: 'agent', text: 'Exame de fezes agendado para o rebanho. Veterinário confirmado para esta semana.' })
+    setExamScheduled(true)
+    dismissAlert('farm_exam_alert')
+  }
+
+  function handleDismiss() {
+    dismissAlert('farm_exam_alert')
+  }
+
   return (
     <div>
       {/* Agent note */}
-      <div className="mx-4 mt-4 bg-paper card-shadow rounded-[9px] p-3.5 flex gap-3 items-start border-l-[3px] border-gold">
-        <AgentMark size={28} tone="green" />
-        <div className="flex-1">
-          <div className="font-head text-[13.5px] font-semibold text-ink">
-            3 cabras pesaram menos essa semana
-          </div>
-          <p className="text-[12.5px] font-sans text-ink-soft mt-1 leading-[1.4]">
-            Pode ser estresse pelo calor ou início de parasita. Quer que eu agende exame de fezes?
-          </p>
-          <div className="flex gap-2 mt-2.5">
-            <button className="h-[30px] px-3 bg-green text-cream text-[12px] font-head font-semibold rounded-[5px] cursor-pointer">
-              Agendar exame
-            </button>
-            <button className="h-[30px] px-3 text-ink-soft text-[12px] font-head font-semibold rounded-[5px] border border-line-strong cursor-pointer">
-              Mais tarde
-            </button>
+      {!alertDismissed && (
+        <div className="mx-4 mt-4 bg-paper card-shadow rounded-[9px] p-3.5 flex gap-3 items-start border-l-[3px] border-gold">
+          <AgentMark size={28} tone="green" />
+          <div className="flex-1">
+            <div className="font-head text-[13.5px] font-semibold text-ink">
+              3 cabras pesaram menos essa semana
+            </div>
+            <p className="text-[12.5px] font-sans text-ink-soft mt-1 leading-[1.4]">
+              Pode ser estresse pelo calor ou início de parasita. Quer que eu agende exame de fezes?
+            </p>
+            <div className="flex gap-2 mt-2.5">
+              <button
+                className="h-[30px] px-3 bg-green text-cream text-[12px] font-head font-semibold rounded-[5px] cursor-pointer"
+                onClick={handleScheduleExam}
+              >
+                Agendar exame
+              </button>
+              <button
+                className="h-[30px] px-3 text-ink-soft text-[12px] font-head font-semibold rounded-[5px] border border-line-strong cursor-pointer"
+                onClick={handleDismiss}
+              >
+                Mais tarde
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {examScheduled && (
+        <div className="mx-4 mt-4 bg-green-bg rounded-[9px] p-3 flex items-center gap-2">
+          <span className="text-[13px] font-sans text-green font-semibold">✓ Exame de fezes agendado</span>
+        </div>
+      )}
 
       {/* Count chips */}
       <div className="px-5 mt-3.5 flex gap-2">
@@ -115,15 +151,12 @@ function SubTabRebanho() {
           const sc = statusConfig[animal.status]
           return (
             <div key={animal.id} className="bg-paper card-shadow rounded-xl p-3 flex items-center gap-3">
-              {/* Photo placeholder */}
               <div
-                className="w-12 h-12 rounded-[8px] flex-shrink-0"
-                style={{
-                  backgroundColor: '#EAE0C9',
-                  backgroundImage: 'repeating-linear-gradient(135deg, rgba(31,42,34,0.06) 0 8px, transparent 8px 16px)',
-                }}
-              />
-              {/* Info */}
+                className="w-12 h-12 rounded-[8px] flex-shrink-0 flex items-center justify-center"
+                style={{ backgroundColor: '#EAE0C9' }}
+              >
+                <GoatIcon size={24} stroke="#8A8F82" strokeWidth={1.6} />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[10.5px] text-ink-mute">#{animal.id}</span>
@@ -139,7 +172,6 @@ function SubTabRebanho() {
                   {animal.note}
                 </div>
               </div>
-              {/* Status dot */}
               <div
                 className="w-2.5 h-2.5 rounded-full ml-auto flex-shrink-0 ring-2 ring-offset-1"
                 style={{
@@ -160,7 +192,6 @@ function SubTabAgua() {
     <div>
       {/* Cisterna hero */}
       <div className="mx-4 mt-4 bg-green rounded-xl p-[18px] relative overflow-hidden">
-        {/* Dot texture */}
         <div
           className="absolute inset-0 opacity-[0.18]"
           style={{
@@ -169,7 +200,6 @@ function SubTabAgua() {
           }}
         />
         <div className="relative z-10 flex justify-between items-start">
-          {/* Left */}
           <div>
             <div className="font-sans text-[11.5px] uppercase tracking-wide" style={{ color: 'rgba(250,246,236,0.70)' }}>
               Cisterna principal
@@ -181,31 +211,21 @@ function SubTabAgua() {
             <div className="font-mono text-[12px] text-gold-tint mt-1">11 200 L · ~14 dias de consumo</div>
           </div>
 
-          {/* Right — gauge */}
           <div
             className="w-[70px] h-[100px] rounded-[5px] relative overflow-hidden flex-shrink-0"
             style={{ border: '1px solid rgba(244,226,176,0.70)' }}
           >
-            {/* Fill */}
             <div
               className="absolute bottom-0 left-0 right-0"
-              style={{
-                height: '68%',
-                background: 'linear-gradient(to top, #3E6B91, rgba(214,162,58,0.50))',
-              }}
+              style={{ height: '68%', background: 'linear-gradient(to top, #3E6B91, rgba(214,162,58,0.50))' }}
             />
-            {/* Dashed line at 32% from top */}
             <div
               className="absolute left-0 right-0"
-              style={{
-                top: '32%',
-                borderTop: '1px dashed rgba(244,226,176,0.60)',
-              }}
+              style={{ top: '32%', borderTop: '1px dashed rgba(244,226,176,0.60)' }}
             />
           </div>
         </div>
 
-        {/* Agent note */}
         <div
           className="mt-3 rounded-[6px] px-2.5 py-2 flex gap-2 items-start"
           style={{ backgroundColor: 'rgba(214,162,58,0.18)' }}
@@ -250,9 +270,7 @@ function SubTabAgua() {
                 <span className="font-mono text-[9.5px] text-ink-mute font-semibold tracking-wide">{day.day}</span>
                 <ForecastIcon type={day.icon} />
                 <span className="font-head text-[13px] font-semibold text-ink">{day.temp}</span>
-                <span
-                  className={`font-mono text-[9.5px] font-semibold ${day.mm > 0 ? 'text-rain' : 'text-ink-mute'}`}
-                >
+                <span className={`font-mono text-[9.5px] font-semibold ${day.mm > 0 ? 'text-rain' : 'text-ink-mute'}`}>
                   {day.mm > 0 ? `${day.mm}mm` : '—'}
                 </span>
               </div>
@@ -283,7 +301,7 @@ const titleMap: Record<SubTab, string> = {
   equipe: 'Equipe',
 }
 
-export default function FarmScreen() {
+export default function FarmScreen({ onNavigate: _onNavigate }: FarmScreenProps) {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('rebanho')
 
   return (
@@ -306,9 +324,7 @@ export default function FarmScreen() {
             <button
               key={tab.id}
               className={`font-head text-[13.5px] font-semibold pb-2.5 -mb-px border-b-2 cursor-pointer ${
-                isActive
-                  ? 'text-green border-green'
-                  : 'text-ink-mute border-transparent'
+                isActive ? 'text-green border-green' : 'text-ink-mute border-transparent'
               }`}
               onClick={() => setActiveSubTab(tab.id)}
             >
