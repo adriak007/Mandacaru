@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --line: rgba(31,42,34,0.09);
+  --line-strong: rgba(31,42,34,0.16);
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  body { -webkit-font-smoothing: antialiased; }
+}
+
+@layer utilities {
+  .card-shadow {
+    box-shadow: 0 1px 0 rgba(31,42,34,0.09), 0 0 0 0.5px rgba(31,42,34,0.09);
+  }
+  .border-line { border-color: rgba(31,42,34,0.09); }
+  .border-line-strong { border-color: rgba(31,42,34,0.16); }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
