@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd mandacaru-web && npm install && npm run build",
+  "outputDirectory": "mandacaru-web/.next",
+  "framework": "nextjs",
+  "installCommand": "echo skip"
+}
