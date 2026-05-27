@@ -3,31 +3,6 @@
 import { useState } from 'react'
 import { useStore } from '@/lib/store'
 
-// Silhueta do mandacaru — grande, proporcional para exibição em destaque
-function MandacaruSilhouette() {
-  return (
-    <svg
-      viewBox="0 0 100 260"
-      fill="currentColor"
-      className="w-full h-full"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Tronco principal */}
-      <rect x="40" y="0" width="20" height="260" rx="10" />
-
-      {/* Braço esquerdo — conector horizontal */}
-      <rect x="10" y="88" width="38" height="14" rx="7" />
-      {/* Braço esquerdo — coluna vertical */}
-      <rect x="8" y="36" width="18" height="64" rx="9" />
-
-      {/* Braço direito — conector horizontal */}
-      <rect x="52" y="116" width="38" height="14" rx="7" />
-      {/* Braço direito — coluna vertical */}
-      <rect x="74" y="60" width="18" height="68" rx="9" />
-    </svg>
-  )
-}
-
 interface SplashScreenProps {
   onComplete: () => void
 }
@@ -50,13 +25,14 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     <div
       className="min-h-screen max-w-[430px] mx-auto flex flex-col relative overflow-hidden select-none"
       style={{
-        background:
-          'linear-gradient(180deg, #1A0804 0%, #4A1408 18%, #8B2E10 38%, #B85030 55%, #C87040 68%, #C8922A 82%, #C8A030 100%)',
+        // Substituído pelo degradê exato de .s-welcome
+        background: 'linear-gradient(180deg, #C44A23 0%, #8E3D20 60%, #5C2812 100%)',
+        color: 'var(--areia, #F4EEDF)',
       }}
     >
       {/* ── Grão de textura ── */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-10"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Ccircle cx='1' cy='1' r='0.7' fill='white' opacity='0.06'/%3E%3C/svg%3E\")",
@@ -64,154 +40,236 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* ── Header ── */}
-      <div className="relative z-20 pt-14 px-6 text-center">
+      {/* ── .s-welcome .horizon (Efeito de iluminação no horizonte) ── */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 500px 400px at 50% 80%, rgba(232, 201, 124, 0.25), transparent 60%)'
+        }}
+      />
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(43, 24, 16, 0.3) 40%, var(--sertao, #120802) 100%)'
+        }}
+      />
+
+      {/* ── .s-welcome .sun (Sol com cores do CSS) ── */}
+      <div
+        className="absolute rounded-full pointer-events-none opacity-80"
+        style={{
+          width: '180px',
+          height: '180px',
+          bottom: '180px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle, var(--flor, #FAF6EC) 0%, var(--terracota-soft, #B85030) 60%, transparent 80%)',
+        }}
+      />
+
+      {/* ── Silhuetas dos Mandacarus (.cactus) ── */}
+      {/* Mandacaru Esquerdo (.cactus.small) */}
+      <div 
+        className="absolute left-[40px] bottom-0 w-[22px] h-[110px]"
+        style={{
+          backgroundColor: 'var(--sertao, #120802)',
+          borderRadius: '11px 11px 0 0'
+        }}
+      >
+        {/* Braço do pequeno */}
+        <div 
+          className="absolute bottom-[30px] right-[-16px] width-[14px] height-[50px]"
+          style={{
+            width: '14px',
+            height: '50px',
+            backgroundColor: 'var(--sertao, #120802)',
+            borderRadius: '2px 7px 0 0'
+          }}
+        />
+      </div>
+
+      {/* Mandacaru Central Principal (.cactus.main) */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[38px] h-[220px]"
+        style={{
+          backgroundColor: 'var(--sertao, #120802)',
+          borderRadius: '19px 19px 0 0',
+        }}
+      >
+        {/* Braço Esquerdo do principal */}
+        <div 
+          className="absolute bottom-[60px] left-[-28px] w-[24px] h-[80px] translate-y-[20px]"
+          style={{
+            backgroundColor: 'var(--sertao, #120802)',
+            borderRadius: '2px 12px 0 0'
+          }}
+        />
+        {/* Braço Direito do principal */}
+        <div 
+          className="absolute bottom-[60px] right-[-28px] w-[24px] h-[80px] translate-y-[30px]"
+          style={{
+            backgroundColor: 'var(--sertao, #120802)',
+            borderRadius: '2px 12px 0 0'
+          }}
+        />
+      </div>
+
+      {/* Mandacaru Direito (.cactus.tiny) */}
+      <div 
+        className="absolute right-[40px] bottom-0 w-[16px] h-[70px]"
+        style={{
+          backgroundColor: 'var(--sertao, #120802)',
+          borderRadius: '2px 8px 0 0'
+        }}
+      />
+
+      {/* Flor no topo do mandacaru principal (.flower) */}
+      <div
+        className="absolute bottom-[215px] left-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full flex items-center justify-center"
+        style={{
+          backgroundColor: 'var(--areia, #F4EEDF)',
+          boxShadow: '0 0 30px rgba(244, 236, 221, 0.6)'
+        }}
+      >
+        <div 
+          className="w-[8px] h-[8px] rounded-full"
+          style={{ backgroundColor: 'var(--flor, #E8B84B)' }}
+        />
+      </div>
+
+      {/* ── Content Header (.s-welcome .content) ── */}
+      <div className="relative z-20 pt-[110px] px-8 text-center">
+        {/* .wordmark / .logo-wordmark */}
         <h1
-          className="font-serif text-[58px] font-semibold leading-none tracking-tight italic"
-          style={{ color: '#F4EEDF', textShadow: '0 2px 28px rgba(0,0,0,0.55)' }}
+          className="font-serif text-[56px] font-normal leading-none tracking-tight italic"
+          style={{ 
+            fontFamily: "'Instrument Serif', serif",
+            color: 'var(--areia, #F4EEDF)',
+          }}
         >
           Mandacaru
         </h1>
+        {/* .tagline */}
         <p
-          className="font-mono text-[10px] tracking-[0.3em] uppercase mt-2.5"
-          style={{ color: 'rgba(244,238,223,0.5)' }}
+          className="text-[11px] uppercase mt-3.5 opacity-70"
+          style={{ 
+            fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: '0.24em'
+          }}
         >
           Floresce antes da chuva
         </p>
       </div>
 
-      {/* ── Cena: sol desfocado + mandacaru ── */}
-      <div className="relative flex-1 flex items-center justify-center overflow-hidden">
-        {/* Halo externo difuso */}
-        <div
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: 360,
-            height: 360,
-            background:
-              'radial-gradient(circle, rgba(244,226,176,0.18) 0%, rgba(214,162,58,0.08) 55%, transparent 75%)',
-            filter: 'blur(30px)',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-
-        {/* Sol desfocado — bokeh fotográfico */}
-        <div
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: 210,
-            height: 210,
-            background:
-              'radial-gradient(circle at 38% 38%, #FAF6EC 0%, #F4E2B0 30%, #E8B84B 62%, #C8832A 88%, #A85820 100%)',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -58%)',
-            boxShadow: '0 0 80px 40px rgba(232,184,75,0.28)',
-          }}
-        />
-
-        {/* Mandacaru — silhueta grande */}
-        <div
-          className="absolute z-10"
-          style={{
-            width: 216,
-            height: 510,
-            color: '#120802',
-            bottom: -150,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            filter: 'drop-shadow(0 -8px 24px rgba(18,8,2,0.9)) drop-shadow(4px 0 8px rgba(18,8,2,0.5))',
+      {/* ── Footer Estilizado conforme .s-welcome .footer ── */}
+      <div className="mt-auto relative z-20 px-8 pb-[50px] text-center w-full">
+        
+        {/* Texto poético (.lead) */}
+        <p 
+          className="text-[26px] italic leading-[1.15] mb-6"
+          style={{ 
+            fontFamily: "'Instrument Serif', serif",
+            color: 'var(--areia, #F4EEDF)'
           }}
         >
-          <MandacaruSilhouette />
-        </div>
+          “Sua roça tem <br /> quem cuida, agora.”
+        </p>
 
-        {/* Frase em cima do sol (Estilo da segunda imagem) */}
-        <div className="absolute bottom-12 z-20 text-center px-8 pointer-events-none">
-          <p 
-            className="font-serif text-[24px] italic leading-tight text-center"
-            style={{ color: '#F4EEDF', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
-          >
-            “Sua roça tem <br /> quem cuida, agora.”
-          </p>
-        </div>
-      </div>
-
-      {/* ── Seção Inferior Dinâmica ── */}
-      <div className="relative z-30 px-6 pb-8 flex flex-col items-center">
-        {mode === 'landing' ? (
-          <>
-            {/* Card com o botão de Criar Conta (Estilo claro do segundo print) */}
-            <div
-              className="w-full bg-[#F4EEDF] p-4 flex items-center justify-center"
-              style={{
-                borderRadius: '24px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-              }}
-            >
+        {/* .actions (Ações dinâmicas) */}
+        <div className="flex flex-col gap-[10px] w-full">
+          {mode === 'landing' ? (
+            <>
+              {/* Botão principal adaptado de .s-welcome .btn-primary */}
               <button
-                className="w-full h-[54px] bg-transparent text-[#120802] font-sans text-[16px] font-bold rounded-2xl cursor-pointer active:opacity-80 transition-opacity"
+                className="w-full h-[56px] font-semibold text-[15px] flex items-center justify-center transition-opacity active:opacity-90 cursor-pointer"
+                style={{
+                  borderRadius: '2px', // Borda quadrada do seu CSS
+                  backgroundColor: 'var(--areia, #F4EEDF)',
+                  color: 'var(--sertao, #120802)',
+                }}
                 onClick={() => setMode('signup')}
               >
                 Criar minha conta
               </button>
-            </div>
 
-          </>
-        ) : (
-          /* Form de Cadastro (Mantido caso o usuário clique em prosseguir) */
-          <div
-            className="w-full bg-[#F4EEDF] p-5"
-            style={{
-              borderRadius: '24px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            }}
-          >
-            <div className="flex items-center gap-3 mb-5">
-              <button
-                className="text-[16px] font-sans text-[#120802]/60 cursor-pointer"
-                onClick={() => setMode('landing')}
+              {/* Link inferior adaptado de .s-welcome .btn-link */}
+              <button 
+                className="text-[14px] opacity-75 text-center py-3.5 cursor-pointer hover:opacity-100 transition-opacity"
+                style={{ color: 'var(--areia, #F4EEDF)' }}
+                onClick={() => setMode('signup')}
               >
-                ←
+                Sou novo por aqui · criar conta
               </button>
-              <h2 className="font-sans text-[18px] font-bold text-[#120802]">Criar sua conta</h2>
-            </div>
-
-            <label className="block mb-1.5 font-sans text-[11px] text-[#120802]/60 uppercase tracking-wide font-semibold">
-              Nome do sítio / fazenda
-            </label>
-            <input
-              className="w-full bg-white/60 border border-black/10 rounded-xl px-4 py-3 font-sans text-[15px] text-[#120802] mb-3.5 outline-none focus:border-[#4A1408] transition-colors"
-              placeholder="Ex: Sítio Olho d'Água"
-              value={farmName}
-              onChange={e => setFarmName(e.target.value)}
-              autoFocus
-            />
-
-            <label className="block mb-1.5 font-sans text-[11px] text-[#120802]/60 uppercase tracking-wide font-semibold">
-              Seu nome
-            </label>
-            <input
-              className="w-full bg-white/60 border border-black/10 rounded-xl px-4 py-3 font-sans text-[15px] text-[#120802] mb-6 outline-none focus:border-[#4A1408] transition-colors"
-              placeholder="Ex: Joaquim"
-              value={userName}
-              onChange={e => setUserName(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && canSubmit) handleSignup() }}
-            />
-
-            <button
-              className={`w-full h-[50px] font-sans text-[16px] font-bold rounded-xl cursor-pointer transition-all ${
-                canSubmit ? 'bg-[#1A0804] text-[#F4EEDF]' : 'bg-black/10 text-black/40 cursor-not-allowed'
-              }`}
-              onClick={handleSignup}
-              disabled={!canSubmit}
+            </>
+          ) : (
+            /* Formulário de cadastro adaptado usando o padrão .btn do CSS */
+            <div
+              className="w-full text-left p-5"
+              style={{
+                backgroundColor: 'var(--sertao, #120802)',
+                border: '1px solid var(--linha-2, rgba(255,255,255,0.1))',
+                borderRadius: '2px',
+              }}
             >
-              Começar
-            </button>
-          </div>
-        )}
+              <div className="flex items-center gap-3 mb-5">
+                <button
+                  className="text-[16px] cursor-pointer"
+                  style={{ color: 'var(--areia, #F4EEDF)' }}
+                  onClick={() => setMode('landing')}
+                >
+                  ←
+                </button>
+                <h2 className="text-[18px] font-bold" style={{ color: 'var(--areia, #F4EEDF)' }}>Criar sua conta</h2>
+              </div>
+
+              <label className="block mb-1.5 text-[11px] uppercase tracking-wide opacity-75">
+                Nome do sítio / fazenda
+              </label>
+              <input
+                className="w-full border rounded-sm px-4 py-3 text-[15px] mb-3.5 bg-transparent outline-none transition-colors"
+                style={{ 
+                  color: 'var(--areia, #F4EEDF)', 
+                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))' 
+                }}
+                placeholder="Ex: Sítio Olho d'Água"
+                value={farmName}
+                onChange={e => setFarmName(e.target.value)}
+                autoFocus
+              />
+
+              <label className="block mb-1.5 text-[11px] uppercase tracking-wide opacity-75">
+                Seu nome
+              </label>
+              <input
+                className="w-full border rounded-sm px-4 py-3 text-[15px] mb-6 bg-transparent outline-none transition-colors"
+                style={{ 
+                  color: 'var(--areia, #F4EEDF)', 
+                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))' 
+                }}
+                placeholder="Ex: Joaquim"
+                value={userName}
+                onChange={e => setUserName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && canSubmit) handleSignup() }}
+              />
+
+              {/* Botão do formulário obedecendo o .btn.dark / .btn */}
+              <button
+                className={`w-full h-[52px] text-[15px] font-semibold flex items-center justify-center transition-all ${
+                  canSubmit ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'
+                }`}
+                style={{
+                  borderRadius: '2px',
+                  backgroundColor: canSubmit ? 'var(--areia, #F4EEDF)' : 'var(--linha-2, rgba(255,255,255,0.1))',
+                  color: canSubmit ? 'var(--sertao, #120802)' : 'var(--areia, #F4EEDF)',
+                }}
+                onClick={handleSignup}
+                disabled={!canSubmit}
+              >
+                Começar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
