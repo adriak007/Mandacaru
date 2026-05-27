@@ -60,6 +60,8 @@ interface StoreContextValue {
   diaryEntries: DiaryEntry[]
   dismissedAlerts: string[]
   settings: AppSettings
+  hasOnboarded: boolean
+  ready: boolean
   pendingCount: number
   isTyping: boolean
   approveDecision: (id: string) => void
@@ -69,6 +71,7 @@ interface StoreContextValue {
   dismissAlert: (id: string) => void
   addDiaryEntry: (entry: Omit<DiaryEntry, 'id'>) => void
   updateSettings: (s: Partial<AppSettings>) => void
+  completeOnboarding: (farmName?: string, userName?: string) => void
   resetData: () => void
 }
 
@@ -202,12 +205,18 @@ interface Persisted {
   diaryEntries: DiaryEntry[]
   dismissedAlerts: string[]
   settings: AppSettings
+  hasOnboarded: boolean
 }
 
 function loadFromStorage(): Persisted {
   try {
     const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-    if (raw) return JSON.parse(raw) as Persisted
+      if (raw) {
+      const parsed = JSON.parse(raw) as Persisted
+      // backward compat: old saves without hasOnboarded count as onboarded
+      if (parsed.hasOnboarded === undefined) parsed.hasOnboarded = true
+      return parsed
+    }
   } catch {}
   return {
     decisions: INITIAL_DECISIONS,
@@ -215,6 +224,7 @@ function loadFromStorage(): Persisted {
     diaryEntries: INITIAL_DIARY,
     dismissedAlerts: [],
     settings: DEFAULT_SETTINGS,
+    hasOnboarded: false,
   }
 }
 
@@ -229,6 +239,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>(INITIAL_DIARY)
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([])
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const [hasOnboarded, setHasOnboarded] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const settingsRef = useRef(settings)
 
@@ -241,6 +252,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setDiaryEntries(s.diaryEntries)
     setDismissedAlerts(s.dismissedAlerts)
     setSettings(s.settings)
+    setHasOnboarded(s.hasOnboarded ?? false)
     setReady(true)
   }, [])
 
@@ -248,10 +260,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!ready) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        decisions, messages, diaryEntries, dismissedAlerts, settings,
+        decisions, messages, diaryEntries, dismissedAlerts, settings, hasOnboarded,
       }))
     } catch {}
-  }, [ready, decisions, messages, diaryEntries, dismissedAlerts, settings])
+  }, [ready, decisions, messages, diaryEntries, dismissedAlerts, settings, hasOnboarded])
 
   const pendingCount = decisions.filter(d => d.status === 'pending').length
 
@@ -323,20 +335,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setSettings(prev => ({ ...prev, ...s }))
   }, [])
 
+  const completeOnboarding = useCallback((farmName?: string, userName?: string) => {
+    if (farmName || userName) {
+      setSettings(prev => ({
+        ...prev,
+        ...(farmName ? { farmName } : {}),
+        ...(userName ? { userName } : {}),
+      }))
+    }
+    setHasOnboarded(true)
+  }, [])
+
   const resetData = useCallback(() => {
     setDecisions(INITIAL_DECISIONS)
     setMessages(INITIAL_MESSAGES)
     setDiaryEntries(INITIAL_DIARY)
     setDismissedAlerts([])
     setSettings(DEFAULT_SETTINGS)
+    setHasOnboarded(false)
   }, [])
 
   return (
     <StoreContext.Provider value={{
       decisions, messages, diaryEntries, dismissedAlerts, settings,
-      pendingCount, isTyping,
+      hasOnboarded, ready, pendingCount, isTyping,
       approveDecision, rejectDecision, sendMessage, confirmAttachment,
-      dismissAlert, addDiaryEntry, updateSettings, resetData,
+      dismissAlert, addDiaryEntry, updateSettings, completeOnboarding, resetData,
     }}>
       {children}
     </StoreContext.Provider>

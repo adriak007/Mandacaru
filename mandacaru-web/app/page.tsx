@@ -8,6 +8,7 @@ import ChatScreen from '@/screens/ChatScreen'
 import ApproveScreen from '@/screens/ApproveScreen'
 import FarmScreen from '@/screens/FarmScreen'
 import DiarioScreen from '@/screens/DiarioScreen'
+import SplashScreen from '@/screens/SplashScreen'
 
 function SettingsModal({ onClose }: { onClose: () => void }) {
   const { settings, updateSettings, resetData } = useStore()
@@ -74,9 +75,23 @@ function SettingsModal({ onClose }: { onClose: () => void }) {
 function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [showSettings, setShowSettings] = useState(false)
-  const { pendingCount } = useStore()
+  const { pendingCount, hasOnboarded, ready } = useStore()
 
   const navigate = (tab: Tab) => setActiveTab(tab)
+
+  // Aguarda hydration do localStorage antes de decidir qual tela mostrar
+  if (!ready) {
+    return (
+      <div
+        className="min-h-screen max-w-[430px] mx-auto"
+        style={{ background: 'linear-gradient(180deg, #1A0A04 0%, #A84220 50%, #D6A23A 100%)' }}
+      />
+    )
+  }
+
+  if (!hasOnboarded) {
+    return <SplashScreen onComplete={() => {}} />
+  }
 
   return (
     <div className="max-w-[430px] mx-auto min-h-screen bg-cream relative">
