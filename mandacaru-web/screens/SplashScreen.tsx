@@ -25,8 +25,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     <div
       className="min-h-screen max-w-[430px] mx-auto flex flex-col relative overflow-hidden select-none"
       style={{
-        background: 'linear-gradient(180deg, #C44A23 0%, #8E3D20 60%, #5C2812 100%)',
-        color: 'var(--areia, #F4EEDF)',
+        background: 'linear-gradient(180deg, #1A0804 0%, #4A1408 18%, #8B2E10 38%, #B85030 55%, #C87040 68%, #C8922A 82%, #C8A030 100%)',
       }}
     >
       {/* ── Grão de textura ── */}
@@ -39,30 +38,32 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* ── Efeito de iluminação no horizonte ── */}
+      {/* ── Sol: halo externo difuso ── */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
+        className="absolute rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 500px 400px at 50% 80%, rgba(232, 201, 124, 0.25), transparent 60%)'
-        }}
-      />
-      <div
-        className="absolute bottom-0 left-0 right-0 h-[280px] pointer-events-none"
-        style={{
-          background: 'linear-gradient(180deg, transparent 0%, rgba(43, 24, 16, 0.3) 40%, var(--sertao, #120802) 100%)'
+          width: 340,
+          height: 340,
+          bottom: '300px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle, rgba(244,226,176,0.22) 0%, rgba(214,162,58,0.10) 50%, transparent 72%)',
+          filter: 'blur(28px)',
         }}
       />
 
-      {/* ── Sol ── */}
+      {/* ── Sol: disco bokeh fotográfico ── */}
       <div
-        className="absolute rounded-full pointer-events-none opacity-80"
+        className="absolute rounded-full pointer-events-none"
         style={{
-          width: '180px',
-          height: '180px',
-          bottom: '380px',
+          width: 200,
+          height: 200,
+          bottom: '350px',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: 'radial-gradient(circle, var(--flor, #FAF6EC) 0%, var(--terracota-soft, #B85030) 70%, transparent 80%)',
+          background: 'radial-gradient(circle at 38% 38%, #FAF6EC 0%, #F4E2B0 28%, #E8B84B 60%, #C8832A 85%, #A85820 100%)',
+          filter: 'blur(44px)',
+          boxShadow: '0 0 70px 36px rgba(232,184,75,0.30)',
         }}
       />
 
@@ -71,8 +72,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         className="absolute left-[40px] w-[22px] h-[110px]"
         style={{
           bottom: '130px',
-          backgroundColor: 'var(--sertao, #120802)',
-          borderRadius: '11px 11px 0 0'
+          backgroundColor: '#120802',
+          borderRadius: '11px 11px 0 0',
         }}
       >
         <div
@@ -82,8 +83,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             right: '-16px',
             width: '14px',
             height: '50px',
-            backgroundColor: 'var(--sertao, #120802)',
-            borderRadius: '2px 7px 0 0'
+            backgroundColor: '#120802',
+            borderRadius: '2px 7px 0 0',
           }}
         />
       </div>
@@ -93,11 +94,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         className="absolute left-1/2 -translate-x-1/2 w-[38px] h-[220px]"
         style={{
           bottom: '120px',
-          backgroundColor: 'var(--sertao, #120802)',
+          backgroundColor: '#120802',
           borderRadius: '19px 19px 0 0',
         }}
       >
-        {/* Braço Esquerdo */}
         <div
           style={{
             position: 'absolute',
@@ -106,11 +106,10 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             width: '24px',
             height: '80px',
             transform: 'translateY(20px)',
-            backgroundColor: 'var(--sertao, #120802)',
-            borderRadius: '2px 12px 0 0'
+            backgroundColor: '#120802',
+            borderRadius: '2px 12px 0 0',
           }}
         />
-        {/* Braço Direito */}
         <div
           style={{
             position: 'absolute',
@@ -119,8 +118,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             width: '24px',
             height: '80px',
             transform: 'translateY(30px)',
-            backgroundColor: 'var(--sertao, #120802)',
-            borderRadius: '2px 12px 0 0'
+            backgroundColor: '#120802',
+            borderRadius: '2px 12px 0 0',
           }}
         />
       </div>
@@ -130,8 +129,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         className="absolute right-[40px] w-[16px] h-[70px]"
         style={{
           bottom: '130px',
-          backgroundColor: 'var(--sertao, #120802)',
-          borderRadius: '2px 8px 0 0'
+          backgroundColor: '#120802',
+          borderRadius: '2px 8px 0 0',
         }}
       />
 
@@ -140,134 +139,129 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         className="absolute left-1/2 -translate-x-1/2 w-[18px] h-[18px] rounded-full flex items-center justify-center"
         style={{
           bottom: '335px',
-          backgroundColor: 'var(--areia, #F4EEDF)',
-          boxShadow: '0 0 30px rgba(244, 236, 221, 0.6)'
+          backgroundColor: '#F4EEDF',
+          boxShadow: '0 0 28px rgba(244,236,221,0.65)',
         }}
       >
-        <div
-          className="w-[8px] h-[8px] rounded-full"
-          style={{ backgroundColor: 'var(--flor, #E8B84B)' }}
-        />
+        <div className="w-[8px] h-[8px] rounded-full" style={{ backgroundColor: '#D6A23A' }} />
       </div>
 
       {/* ── Header ── */}
       <div className="relative z-20 pt-[110px] px-8 text-center">
         <h1
-          className="text-[56px] font-normal leading-none tracking-tight italic"
-          style={{
-            fontFamily: "'Instrument Serif', serif",
-            color: 'var(--areia, #F4EEDF)',
-          }}
+          className="font-display italic text-[56px] font-normal leading-none tracking-tight"
+          style={{ color: '#F4EEDF', textShadow: '0 2px 28px rgba(0,0,0,0.50)' }}
         >
           Mandacaru
         </h1>
         <p
-          className="text-[11px] uppercase mt-3.5 opacity-70"
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: '0.24em'
-          }}
+          className="font-mono text-[10px] tracking-[0.28em] uppercase mt-3"
+          style={{ color: 'rgba(244,238,223,0.55)' }}
         >
           Floresce antes da chuva
         </p>
       </div>
 
-      {/* ── Footer ── */}
-      <div className="mt-auto relative z-20 px-8 pb-[108px] text-center w-full">
-
-        <p
-          className="text-[26px] italic leading-[1.15] mb-6"
-          style={{
-            fontFamily: "'Instrument Serif', serif",
-            color: 'var(--areia, #F4EEDF)'
-          }}
-        >
-          "Sua roça tem <br /> quem cuida, agora."
-        </p>
-
-        <div className="flex flex-col gap-[10px] w-full">
-          {mode === 'landing' ? (
-            <>
-              <button
-                className="w-full h-[56px] font-semibold text-[15px] flex items-center justify-center transition-opacity active:opacity-90 cursor-pointer"
-                style={{
-                  borderRadius: '10px',
-                  backgroundColor: 'var(--areia, #F4EEDF)',
-                  color: 'var(--sertao, #120802)',
-                }}
-                onClick={() => setMode('signup')}
-              >
-                Criar minha conta
-              </button>
-
-</>
-          ) : (
-            <div
-              className="w-full text-left p-5"
-              style={{
-                backgroundColor: 'var(--sertao, #120802)',
-                border: '1px solid var(--linha-2, rgba(255,255,255,0.1))',
-                borderRadius: '2px',
-              }}
+      {/* ── Área inferior ── */}
+      <div className="mt-auto relative z-20 w-full">
+        {mode === 'landing' ? (
+          <div className="px-5 pb-[108px] text-center">
+            <p
+              className="font-display italic text-[26px] font-normal leading-[1.22] mb-6"
+              style={{ color: '#F4EEDF', textShadow: '0 2px 18px rgba(0,0,0,0.55)' }}
             >
-              <div className="flex items-center gap-3 mb-5">
-                <button
-                  className="text-[16px] cursor-pointer"
-                  style={{ color: 'var(--areia, #F4EEDF)' }}
-                  onClick={() => setMode('landing')}
-                >
-                  ←
-                </button>
-                <h2 className="text-[18px] font-bold" style={{ color: 'var(--areia, #F4EEDF)' }}>Criar sua conta</h2>
-              </div>
-
-              <label className="block mb-1.5 text-[11px] uppercase tracking-wide opacity-75">
-                Nome do sítio / fazenda
-              </label>
-              <input
-                className="w-full border rounded-sm px-4 py-3 text-[15px] mb-3.5 bg-transparent outline-none transition-colors"
-                style={{
-                  color: 'var(--areia, #F4EEDF)',
-                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))'
-                }}
-                placeholder="Ex: Sítio Olho d'Água"
-                value={farmName}
-                onChange={e => setFarmName(e.target.value)}
-                autoFocus
-              />
-
-              <label className="block mb-1.5 text-[11px] uppercase tracking-wide opacity-75">
-                Seu nome
-              </label>
-              <input
-                className="w-full border rounded-sm px-4 py-3 text-[15px] mb-6 bg-transparent outline-none transition-colors"
-                style={{
-                  color: 'var(--areia, #F4EEDF)',
-                  borderColor: 'var(--linha-2, rgba(255,255,255,0.2))'
-                }}
-                placeholder="Ex: Joaquim"
-                value={userName}
-                onChange={e => setUserName(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && canSubmit) handleSignup() }}
-              />
-
+              "Sua roça tem<br />quem cuida, agora."
+            </p>
+            <button
+              className="w-full h-[56px] font-head text-[16px] font-semibold rounded-2xl cursor-pointer active:opacity-90 transition-opacity"
+              style={{
+                backgroundColor: '#F4EEDF',
+                color: '#120802',
+                boxShadow: '0 6px 28px rgba(18,8,2,0.55)',
+              }}
+              onClick={() => setMode('signup')}
+            >
+              Criar minha conta
+            </button>
+          </div>
+        ) : (
+          <div
+            className="w-full px-5 pt-7 pb-10 text-left"
+            style={{
+              backgroundColor: '#120802',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '28px 28px 0 0',
+              boxShadow: '0 -12px 48px rgba(0,0,0,0.55)',
+            }}
+          >
+            <div className="flex items-center gap-3 mb-5">
               <button
-                className={`w-full h-[52px] text-[15px] font-semibold flex items-center justify-center transition-all ${
-                  canSubmit ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'
-                }`}
-                style={{
-                  borderRadius: '2px',
-                  backgroundColor: canSubmit ? 'var(--areia, #F4EEDF)' : 'var(--linha-2, rgba(255,255,255,0.1))',
-                  color: canSubmit ? 'var(--sertao, #120802)' : 'var(--areia, #F4EEDF)',
-                }}
-                onClick={handleSignup}
-                disabled={!canSubmit}
+                className="font-sans text-[16px] cursor-pointer"
+                style={{ color: '#F4EEDF' }}
+                onClick={() => setMode('landing')}
               >
-                Começar
+                ←
               </button>
+              <h2
+                className="font-head text-[20px] font-semibold"
+                style={{ color: '#F4EEDF' }}
+              >
+                Criar sua conta
+              </h2>
             </div>
-          )}
-        </div>
+
+            <label
+              className="block mb-1.5 font-sans text-[11px] uppercase tracking-wide"
+              style={{ color: 'rgba(244,238,223,0.6)' }}
+            >
+              Nome do sítio / fazenda
+            </label>
+            <input
+              className="w-full rounded-xl px-4 py-3 font-sans text-[15px] mb-3.5 outline-none transition-colors"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                color: '#F4EEDF',
+              }}
+              placeholder="Ex: Sítio Olho d'Água"
+              value={farmName}
+              onChange={e => setFarmName(e.target.value)}
+              autoFocus
+            />
+
+            <label
+              className="block mb-1.5 font-sans text-[11px] uppercase tracking-wide"
+              style={{ color: 'rgba(244,238,223,0.6)' }}
+            >
+              Seu nome
+            </label>
+            <input
+              className="w-full rounded-xl px-4 py-3 font-sans text-[15px] mb-6 outline-none transition-colors"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                color: '#F4EEDF',
+              }}
+              placeholder="Ex: Joaquim"
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && canSubmit) handleSignup() }}
+            />
+
+            <button
+              className="w-full h-[56px] font-head text-[16px] font-semibold rounded-2xl cursor-pointer transition-all"
+              style={{
+                backgroundColor: canSubmit ? '#F4EEDF' : 'rgba(255,255,255,0.12)',
+                color: canSubmit ? '#120802' : 'rgba(244,238,223,0.4)',
+                cursor: canSubmit ? 'pointer' : 'not-allowed',
+              }}
+              onClick={handleSignup}
+              disabled={!canSubmit}
+            >
+              Começar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
