@@ -63,10 +63,15 @@ function DecisionIcon({ iconType }: { iconType: 'coins' | 'pulse' | 'plant' }) {
 }
 
 export default function HomeScreen({ onNavigate, onOpenSettings }: HomeScreenProps) {
-  const { decisions, approveDecision, rejectDecision, settings } = useStore()
+  const { decisions, approveDecision, rejectDecision, settings, farmConfig } = useStore()
   const pending = decisions.filter(d => d.status === 'pending')
   const pendingCount = pending.length
   const quickCards = pending.slice(0, 2)
+
+  const cisternaConfigurada = farmConfig.cisternaCapacidade > 0
+  const cisternaLitros = Math.round(farmConfig.cisternaCapacidade * farmConfig.cisternaAtual / 100)
+  const cisternaDias = Math.round(cisternaLitros / 800)
+  const cisternaLitrosStr = cisternaLitros.toLocaleString('pt-BR')
 
   return (
     <div>
@@ -111,8 +116,10 @@ export default function HomeScreen({ onNavigate, onOpenSettings }: HomeScreenPro
 
           <p className="font-head text-[22px] font-medium text-cream leading-[1.25] tracking-tight mt-3 mb-4">
             O Mandacaru tá{' '}
-            <span className="text-gold">cuidando da fazenda.</span>{' '}
-            Hoje conferi a cisterna, agendei a vacina das cabras e pedi 80 kg de palma.
+            <span className="text-gold">cuidando da {settings.farmName || 'fazenda'}.</span>{' '}
+            {cisternaConfigurada
+              ? `Cisterna em ${farmConfig.cisternaAtual}%, ${farmConfig.rebanhoTotal} animais no rebanho.`
+              : 'Configure os dados da sua fazenda na aba Fazenda para monitoramento completo.'}
           </p>
 
           <div className="flex gap-2">
@@ -198,24 +205,24 @@ export default function HomeScreen({ onNavigate, onOpenSettings }: HomeScreenPro
           icon={<DropIcon size={18} stroke="#3E6B91" strokeWidth={1.8} />}
           iconBg="#D9E4EE"
           label="CISTERNA"
-          value="68%"
-          progress={68}
+          value={cisternaConfigurada ? `${farmConfig.cisternaAtual}%` : '—'}
+          progress={cisternaConfigurada ? farmConfig.cisternaAtual : undefined}
           progressColor="#3E6B91"
-          sub="≈ 11 200 L · 14 dias"
+          sub={cisternaConfigurada ? `≈ ${cisternaLitrosStr} L · ${cisternaDias} dias` : 'Não configurado'}
         />
         <StatusTile
           icon={<GoatIcon size={18} stroke="#2A4A36" strokeWidth={1.8} />}
           iconBg="#E9EFDF"
           label="REBANHO"
-          value="47"
-          sub="43 saudáveis · 3 atenção"
+          value={farmConfig.rebanhoTotal > 0 ? String(farmConfig.rebanhoTotal) : '—'}
+          sub={farmConfig.rebanhoTotal > 0 ? `${farmConfig.rebanhoSaudaveis} saudáveis · ${farmConfig.rebanhoAtencao} atenção` : 'Não configurado'}
         />
         <StatusTile
           icon={<CactusIcon size={18} stroke="#C16A3F" strokeWidth={1.8} />}
           iconBg="#F2DCCB"
           label="PALMA"
-          value="Boa"
-          sub="2,1 ha · colheita em 18d"
+          value={farmConfig.palmaArea > 0 ? farmConfig.palmaStatus : '—'}
+          sub={farmConfig.palmaArea > 0 ? `${farmConfig.palmaArea} ha · colheita em ${farmConfig.palmaDiasColheita}d` : 'Não configurado'}
         />
       </div>
     </div>

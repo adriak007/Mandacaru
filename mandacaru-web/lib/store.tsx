@@ -52,6 +52,33 @@ export interface AppSettings {
   userName: string
 }
 
+export type AnimalStatus = 'ok' | 'watch' | 'treat'
+
+export interface Animal {
+  id: string
+  name: string
+  type: string
+  status: AnimalStatus
+  note: string
+}
+
+export interface FarmConfig {
+  // Cisterna — configurado pelo usuário, atualizado por sensor (futuro)
+  cisternaCapacidade: number    // litros totais da cisterna
+  cisternaAtual: number         // nível atual em % (0-100)
+
+  // Rebanho — configurado pelo usuário
+  rebanhoTotal: number
+  rebanhoSaudaveis: number
+  rebanhoAtencao: number
+  rebanhoTratando: number
+
+  // Palma forrageira — configurado pelo usuário
+  palmaArea: number             // hectares
+  palmaDiasColheita: number     // estimativa de dias até colheita
+  palmaStatus: 'Boa' | 'Regular' | 'Ruim'
+}
+
 // ─── Context interface ────────────────────────────────────────────────────────
 
 interface StoreContextValue {
@@ -60,6 +87,8 @@ interface StoreContextValue {
   diaryEntries: DiaryEntry[]
   dismissedAlerts: string[]
   settings: AppSettings
+  farmConfig: FarmConfig
+  animals: Animal[]
   hasOnboarded: boolean
   ready: boolean
   pendingCount: number
@@ -71,11 +100,31 @@ interface StoreContextValue {
   dismissAlert: (id: string) => void
   addDiaryEntry: (entry: Omit<DiaryEntry, 'id'>) => void
   updateSettings: (s: Partial<AppSettings>) => void
-  completeOnboarding: (farmName?: string, userName?: string) => void
+  updateFarmConfig: (config: Partial<FarmConfig>) => void
+  addAnimal: (animal: Omit<Animal, 'id'>) => void
+  removeAnimal: (id: string) => void
+  completeOnboarding: (farmName: string, userName: string) => void
   resetData: () => void
 }
 
-// ─── Initial data ─────────────────────────────────────────────────────────────
+// ─── Default / initial data ───────────────────────────────────────────────────
+
+const DEFAULT_SETTINGS: AppSettings = {
+  farmName: '',
+  userName: '',
+}
+
+const DEFAULT_FARM_CONFIG: FarmConfig = {
+  cisternaCapacidade: 0,
+  cisternaAtual: 0,
+  rebanhoTotal: 0,
+  rebanhoSaudaveis: 0,
+  rebanhoAtencao: 0,
+  rebanhoTratando: 0,
+  palmaArea: 0,
+  palmaDiasColheita: 0,
+  palmaStatus: 'Boa',
+}
 
 const INITIAL_DECISIONS: Decision[] = [
   {
@@ -91,7 +140,7 @@ const INITIAL_DECISIONS: Decision[] = [
     id: 'd2', category: 'saude',
     tagText: 'SAÚDE DO REBANHO', tagColor: '#3E6B91',
     iconType: 'pulse', iconBg: '#D9E4EE',
-    title: 'Vacinar 12 cabras contra raiva',
+    title: 'Vacinar cabras contra raiva',
     reason: 'Reforço anual vence em 6 dias. Veterinária Dra. Cida tem agenda livre sábado.',
     cost: 'R$ 144,00', when: 'sábado · 31/05 · 08:00',
     status: 'pending',
@@ -110,12 +159,12 @@ const INITIAL_DECISIONS: Decision[] = [
 const INITIAL_MESSAGES: Message[] = [
   {
     id: 'm1', role: 'agent',
-    text: 'Seu Joaquim, vinha lhe avisar: a cisterna baixou pra 68%. Sem chuva prevista nos próximos 9 dias.',
+    text: 'Vinha lhe avisar: a cisterna baixou. Sem chuva prevista nos próximos 9 dias.',
     timestamp: '14:31',
   },
   {
     id: 'm2', role: 'agent',
-    text: 'Quer que eu mande o Carlinhos rebocar mais água lá do açude do compadre Zé?',
+    text: 'Quer que eu mande buscar mais água no açude do vizinho?',
     timestamp: '14:31',
   },
   {
@@ -124,11 +173,11 @@ const INITIAL_MESSAGES: Message[] = [
   },
   {
     id: 'm4', role: 'agent',
-    text: 'Entendido. Marquei pra sábado de manhã. Já reservei 2 mil litros com seu Zé — R$ 40.',
+    text: 'Entendido. Marquei pra sábado de manhã. Já reservei 2 mil litros — R$ 40.',
     timestamp: '14:32',
     attachment: {
       title: 'Reboque de água — sábado 07:00',
-      subtitle: '2 000 L · Açude do Zé · R$ 40',
+      subtitle: '2 000 L · R$ 40',
       detail: 'VOU MARCAR ISTO',
     },
   },
@@ -140,22 +189,17 @@ const INITIAL_MESSAGES: Message[] = [
 ]
 
 const INITIAL_DIARY: DiaryEntry[] = [
-  { id: 'e1', t: '14:31', tag: 'AGORA', kind: 'agent', text: 'Você pediu reboque de água. Reservei com Sr. Zé pra sábado 07:00.', meta: '2 000 L · R$ 40' },
+  { id: 'e1', t: '14:31', tag: 'AGORA', kind: 'agent', text: 'Você pediu reboque de água. Reservei pra sábado 07:00.', meta: '2 000 L · R$ 40' },
   { id: 'e2', t: '13:48', kind: 'sense', text: 'Conferi previsão do INMET. 8 mm acumulado em 7 dias. Abaixei a meta de rega da palma.' },
-  { id: 'e3', t: '11:02', kind: 'agent', text: 'Pedi orçamento de 80 kg de palma forrageira pra 3 fornecedores.', meta: 'Damião R$ 96 · Outros R$ 112, 120' },
-  { id: 'e4', t: '10:14', kind: 'wait', text: 'Aguardando você aprovar: vacinação de 12 cabras contra raiva.' },
-  { id: 'e5', t: '09:32', kind: 'sense', text: 'Sensor da cisterna: nível 68%. Estimativa 14 dias sem chuva.' },
-  { id: 'e6', t: '07:14', kind: 'agent', text: 'Mandei o Carlinhos checar a cerca norte. Solto 2 estacas — vou avisar.' },
+  { id: 'e3', t: '11:02', kind: 'agent', text: 'Pedi orçamento de palma forrageira pra 3 fornecedores.', meta: 'Damião R$ 96 · Outros R$ 112, 120' },
+  { id: 'e4', t: '10:14', kind: 'wait', text: 'Aguardando você aprovar: vacinação das cabras contra raiva.' },
+  { id: 'e5', t: '09:32', kind: 'sense', text: 'Sensor da cisterna: nível baixo. Estimativa crítica sem chuva.' },
+  { id: 'e6', t: '07:14', kind: 'agent', text: 'Mandei checar a cerca norte. Solto 2 estacas — vou avisar.' },
   { id: 'div1', t: 'ONTEM', tag: 'SEG 27/05', kind: 'div' },
   { id: 'e7', t: '18:22', kind: 'agent', text: 'Lancei a venda de 6 L de leite no caderno: Dona Lúcia · R$ 24.' },
-  { id: 'e8', t: '16:05', kind: 'sense', text: 'Pretinho comeu 30% menos no cocho. Marcado pra observar.', meta: '#042' },
+  { id: 'e8', t: '16:05', kind: 'sense', text: 'Um animal comeu menos no cocho. Marcado pra observar.' },
   { id: 'e9', t: '08:00', kind: 'agent', text: 'Soltei o rebanho no piquete leste. Pasto reservado por 4 dias.' },
 ]
-
-const DEFAULT_SETTINGS: AppSettings = {
-  farmName: "Sítio Olho d'Água",
-  userName: 'Seu Joaquim',
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -167,26 +211,40 @@ const nowTime = () => {
 let _uid = Date.now()
 const uid = () => String(++_uid)
 
-function getAutoResponse(text: string, userName: string): string {
-  const firstName = userName.replace(/^seu\s+/i, '')
+function fmtLitros(n: number): string {
+  return n.toLocaleString('pt-BR')
+}
+
+function getAutoResponse(text: string, userName: string, cfg: FarmConfig): string {
+  const firstName = userName.replace(/^seu\s+/i, '').split(' ')[0] || userName
+
+  const litros = Math.round(cfg.cisternaCapacidade * cfg.cisternaAtual / 100)
+  const diasCisterna = Math.round(litros / 800)
 
   const presets: Record<string, string> = {
     'Vai chover essa semana?': 'A previsão do INMET mostra só 8 mm nos próximos 7 dias — muito abaixo do normal. Vou manter o monitoramento da cisterna e da palma.',
-    'Como tá a cisterna?': 'A cisterna principal tá em 68%, cerca de 11.200 litros. Com o consumo atual, dura 14 dias. O reboque de sábado reforça mais 2.000 litros.',
-    'Comprar ração': `Pode me dizer quanto de ração e qual tipo, ${firstName}? Verifico os preços com os fornecedores habituais e trago as melhores opções pra você aprovar.`,
+    'Como tá a cisterna?': `A cisterna tá em ${cfg.cisternaAtual}%, cerca de ${fmtLitros(litros)} litros. Com o consumo atual, dura uns ${diasCisterna} dias.`,
+    'Comprar ração': `Pode me dizer quanto de ração e qual tipo, ${firstName}? Verifico os preços com os fornecedores e trago as opções pra você aprovar.`,
   }
   if (presets[text]) return presets[text]
 
   const responses: [RegExp, string][] = [
-    [/chuva|tempo|clima|previsão|previsao/i, 'Tô de olho na previsão. Próximos 7 dias com pouca chuva — máximo 8 mm acumulado. Vou avisar se mudar.'],
-    [/cisterna|água|agua/i, 'A cisterna principal tá em 68%, uns 11.200 L. Com o reboque de sábado, subimos pra 79% — uns 18 dias de reserva.'],
-    [/cabra|rebanho|animal|gado|pretinho|florzinha/i, 'O rebanho tem 47 cabeças. 43 saudáveis, 3 em observação e o Cravinho em tratamento de giárdia.'],
-    [/palma|planta|cultivo|roça/i, 'A palma tá bem nas 2,1 ha. Reduzi a rega de 4× pra 3× por semana pela seca — economiza ~600 L. Colheita em 18 dias.'],
-    [/ração|racao|compra|preço|preco/i, 'Vou verificar os preços com os fornecedores habituais e traço as melhores opções em breve.'],
-    [/vacin|saúde|doença|doenca/i, 'A vacinação das cabras contra raiva vence em 6 dias. Tô aguardando a sua aprovação pra agendar com a Dra. Cida no sábado.'],
-    [/leite/i, 'A produção de leite tá em 1,8 L/dia por cabra leiteira. Mariquinha tá produzindo bem.'],
-    [/exame|fezes|parasita/i, 'O exame de fezes do rebanho foi agendado. Vou confirmar a data com o veterinário e te aviso.'],
-    [/olá|oi|bom dia|boa tarde|boa noite|tudo bem/i, `Oi, ${firstName}! Tudo certo por aqui. A fazenda tá em dia. Tem alguma coisa que precisa resolver?`],
+    [/chuva|tempo|clima|previsão|previsao/i,
+      'Tô de olho na previsão. Próximos 7 dias com pouca chuva — máximo 8 mm acumulado. Vou avisar se mudar.'],
+    [/cisterna|água|agua/i,
+      `A cisterna tá em ${cfg.cisternaAtual}%, uns ${fmtLitros(litros)} L. Dura aproximadamente ${diasCisterna} dias.`],
+    [/cabra|rebanho|animal|gado|bode/i,
+      `O rebanho tem ${cfg.rebanhoTotal} cabeças. ${cfg.rebanhoSaudaveis} saudáveis${cfg.rebanhoAtencao > 0 ? `, ${cfg.rebanhoAtencao} em atenção` : ''}${cfg.rebanhoTratando > 0 ? ` e ${cfg.rebanhoTratando} em tratamento` : ''}.`],
+    [/palma|planta|cultivo|roça/i,
+      `A palma tá ${cfg.palmaStatus.toLowerCase()} nas ${cfg.palmaArea} ha. Colheita estimada em ${cfg.palmaDiasColheita} dias.`],
+    [/ração|racao|compra|preço|preco/i,
+      'Vou verificar os preços com os fornecedores habituais e trago as melhores opções em breve.'],
+    [/vacin|saúde|doença|doenca/i,
+      'A vacinação das cabras contra raiva vence em 6 dias. Tô aguardando a sua aprovação pra agendar com a Dra. Cida no sábado.'],
+    [/leite/i,
+      'A produção de leite tá em dia. Posso registrar a venda se quiser — é só me dizer a quantidade e o comprador.'],
+    [/olá|oi|bom dia|boa tarde|boa noite|tudo bem/i,
+      `Oi, ${firstName}! Tudo certo por aqui. A fazenda tá em dia. Tem alguma coisa que precisa resolver?`],
   ]
 
   for (const [re, resp] of responses) {
@@ -205,16 +263,19 @@ interface Persisted {
   diaryEntries: DiaryEntry[]
   dismissedAlerts: string[]
   settings: AppSettings
+  farmConfig: FarmConfig
+  animals: Animal[]
   hasOnboarded: boolean
 }
 
 function loadFromStorage(): Persisted {
   try {
     const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-      if (raw) {
+    if (raw) {
       const parsed = JSON.parse(raw) as Persisted
-      // backward compat: old saves without hasOnboarded count as onboarded
       if (parsed.hasOnboarded === undefined) parsed.hasOnboarded = true
+      if (!parsed.farmConfig) parsed.farmConfig = DEFAULT_FARM_CONFIG
+      if (!parsed.animals) parsed.animals = []
       return parsed
     }
   } catch {}
@@ -224,6 +285,8 @@ function loadFromStorage(): Persisted {
     diaryEntries: INITIAL_DIARY,
     dismissedAlerts: [],
     settings: DEFAULT_SETTINGS,
+    farmConfig: DEFAULT_FARM_CONFIG,
+    animals: [],
     hasOnboarded: false,
   }
 }
@@ -239,11 +302,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>(INITIAL_DIARY)
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([])
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const [farmConfig, setFarmConfig] = useState<FarmConfig>(DEFAULT_FARM_CONFIG)
+  const [animals, setAnimals] = useState<Animal[]>([])
   const [hasOnboarded, setHasOnboarded] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
-  const settingsRef = useRef(settings)
 
+  const settingsRef = useRef(settings)
+  const farmConfigRef = useRef(farmConfig)
   useEffect(() => { settingsRef.current = settings }, [settings])
+  useEffect(() => { farmConfigRef.current = farmConfig }, [farmConfig])
 
   useEffect(() => {
     const s = loadFromStorage()
@@ -252,6 +319,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setDiaryEntries(s.diaryEntries)
     setDismissedAlerts(s.dismissedAlerts)
     setSettings(s.settings)
+    setFarmConfig(s.farmConfig)
+    setAnimals(s.animals ?? [])
     setHasOnboarded(s.hasOnboarded ?? false)
     setReady(true)
   }, [])
@@ -260,10 +329,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!ready) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        decisions, messages, diaryEntries, dismissedAlerts, settings, hasOnboarded,
+        decisions, messages, diaryEntries, dismissedAlerts, settings, farmConfig, animals, hasOnboarded,
       }))
     } catch {}
-  }, [ready, decisions, messages, diaryEntries, dismissedAlerts, settings, hasOnboarded])
+  }, [ready, decisions, messages, diaryEntries, dismissedAlerts, settings, farmConfig, animals, hasOnboarded])
 
   const pendingCount = decisions.filter(d => d.status === 'pending').length
 
@@ -300,10 +369,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setIsTyping(true)
     const delay = 900 + Math.random() * 900
     const userName = settingsRef.current.userName
+    const cfg = farmConfigRef.current
     setTimeout(() => {
       setMessages(prev => [...prev, {
         id: uid(), role: 'agent',
-        text: getAutoResponse(text, userName),
+        text: getAutoResponse(text, userName, cfg),
         timestamp: nowTime(),
       }])
       setIsTyping(false)
@@ -319,7 +389,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setDiaryEntries(e => [{
       id: uid(), t, kind: 'agent',
       text: 'Reboque de água confirmado — sábado 07:00.',
-      meta: '2 000 L · Açude do Zé · R$ 40',
+      meta: '2 000 L · R$ 40',
     }, ...e])
   }, [])
 
@@ -335,14 +405,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setSettings(prev => ({ ...prev, ...s }))
   }, [])
 
-  const completeOnboarding = useCallback((farmName?: string, userName?: string) => {
-    if (farmName || userName) {
-      setSettings(prev => ({
-        ...prev,
-        ...(farmName ? { farmName } : {}),
-        ...(userName ? { userName } : {}),
-      }))
-    }
+  const updateFarmConfig = useCallback((config: Partial<FarmConfig>) => {
+    setFarmConfig(prev => ({ ...prev, ...config }))
+  }, [])
+
+  const addAnimal = useCallback((animal: Omit<Animal, 'id'>) => {
+    setAnimals(prev => [...prev, { ...animal, id: uid() }])
+  }, [])
+
+  const removeAnimal = useCallback((id: string) => {
+    setAnimals(prev => prev.filter(a => a.id !== id))
+  }, [])
+
+  const completeOnboarding = useCallback((farmName: string, userName: string) => {
+    setSettings({ farmName, userName })
     setHasOnboarded(true)
   }, [])
 
@@ -352,15 +428,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setDiaryEntries(INITIAL_DIARY)
     setDismissedAlerts([])
     setSettings(DEFAULT_SETTINGS)
+    setFarmConfig(DEFAULT_FARM_CONFIG)
+    setAnimals([])
     setHasOnboarded(false)
   }, [])
 
   return (
     <StoreContext.Provider value={{
-      decisions, messages, diaryEntries, dismissedAlerts, settings,
+      decisions, messages, diaryEntries, dismissedAlerts, settings, farmConfig, animals,
       hasOnboarded, ready, pendingCount, isTyping,
       approveDecision, rejectDecision, sendMessage, confirmAttachment,
-      dismissAlert, addDiaryEntry, updateSettings, completeOnboarding, resetData,
+      dismissAlert, addDiaryEntry, updateSettings, updateFarmConfig,
+      addAnimal, removeAnimal, completeOnboarding, resetData,
     }}>
       {children}
     </StoreContext.Provider>
